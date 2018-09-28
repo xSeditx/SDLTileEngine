@@ -48,16 +48,16 @@
 
 #include<functional>
 
-//#include"Fonts.h"
-
-
 typedef glm::vec2 Vec2;
 typedef glm::vec3 Vec3;
 typedef glm::vec4 Vec4;
 typedef glm::mat4 Matrix;
 
 
+typedef SDL_Texture Texture;
+typedef SDL_Surface Surface;
 
+typedef unsigned int uint;
 //#include "C:\Users\Curt\Documents\Visual Studio 2012\Libraries\SDL2\include\SDL_mixer.h"
 /* Constants rounded for 21 decimals. */
 #ifndef M_PI
