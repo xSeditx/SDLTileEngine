@@ -1,10 +1,7 @@
 #include"Fonts.h"
-
 #include"Window.h"
 
-
 FontRender *FontRender::Fonts;
-
 
 FontRender::FontRender(const char*file)
 {
@@ -36,8 +33,6 @@ FontRender::FontRender(const char*file, int size)
         Print(TTF_GetError);
     }
 }
-
- 
 
 void FontRender::FreeFont(TTF_Font *font)
 {
@@ -89,13 +84,13 @@ void FontRender::Write(const char *text, Vec2 pos)
              SDL_FreeSurface( surface );
              //TTF_Set
              //Set rendering space and render to screen
-             SDL_Rect renderQuad = { pos.x, pos.y, Width, Height };
+             SDL_Rect renderQuad = { (int)pos.x,  (int)pos.y, 
+				                     (int)Width,  (int)Height };
              SDL_RenderCopy( SCREEN->Renderer, mTexture, NULL, &renderQuad );
              
              SDL_DestroyTexture(mTexture); 
          }
     }
-
 
 void FontRender::WriteShadow(const char *text, Vec2 pos, int depth)
 {

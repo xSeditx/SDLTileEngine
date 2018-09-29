@@ -1,6 +1,6 @@
 #include"window.h"
 #include "Collision.h"
-
+#include <algorithm>
 //#include "Camera.h"
 
 /*~~~~~~~~~~~~~~~~~~ NOTES ~~~~~~~~~~~~~~~~~~~~*/ 
@@ -283,7 +283,7 @@ void AABB::Update()
 void AABB::Render()
 {
     SDL_SetRenderDrawColor(SCREEN->Renderer,255,0,0,255);
-    SDL_Rect Box = { MinPoint.x, MinPoint.y,  MaxPoint.x - MinPoint.x, MaxPoint.y -MinPoint.y};
+    SDL_Rect Box = { (int)MinPoint.x, (int)MinPoint.y,  (int)MaxPoint.x - (int)MinPoint.x, (int)MaxPoint.y - (int)MinPoint.y};
     SDL_RenderDrawRect(SCREEN->Renderer, &Box);
 }
 void AABB::Sweep() 
