@@ -99,7 +99,7 @@ Window::Window(int x, int y, int width, int height, char *title)
 
 	SDL_SetRenderTarget(Renderer, BackBuffer);
 
-	//        SDL_SetWindowResizable(SDL_HWND, SDL_TRUE);
+	        SDL_SetWindowResizable(SDL_HWND, SDL_TRUE);
 
 	WindowSurface = SDL_GetWindowSurface(SDL_HWND);
 	WindowFormat = SDL_GetWindowPixelFormat(SDL_HWND);
@@ -143,7 +143,7 @@ Window::Window(int x, int y, int width, int height, char *title)
 	OldMouseX = 0;
 	OldMouseY = 0;
 
-	SDL_SetWindowResizable(SDL_HWND, SDL_FALSE);
+	//SDL_SetWindowResizable(SDL_HWND, SDL_FALSE);
 }
 
 

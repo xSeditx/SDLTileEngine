@@ -1,7 +1,7 @@
 #pragma once
 #include"window.h"
-#include"Dependencies\SDL_Mixer\include\SDL_Mixer.h"
-#include"Assets.h"
+#include"SDL_Mixer.h"
+
 
 #if !USING_ASSETS
 

@@ -2,6 +2,7 @@
 #include "AssetManager.h"
 #include "Window.h"
 #include "SDL_Image.h"
+#include "Collision.h"
 
 class Image
 {
@@ -16,12 +17,12 @@ public:
 
 	Image(char *name, const char *file);
 	Image(char *name);
-	Image(SDL_Surface *surf, SDL_Rect area);
+	Image(char *name, SDL_Surface *surf, SDL_Rect area);
 	
-    const char *Name;
+    char *Name;
     int   ID;
     Vec2  Size;
-   
+	const char *Source;
     void Render(Vec2 position);
     void Render(Vec2 position, Vec2 size);
 
@@ -31,7 +32,7 @@ public:
 	Texture *GetTexture() { return ImageTexture; }
 	Surface *GetSurface() { return ImageSurface; }
 
-static Image *MakeGreyScale(Image *img);
+	void MakeGreyScale();
 private:
 	Texture *ImageTexture;
 	Surface *ImageSurface;
@@ -100,12 +101,12 @@ public:
 	~Sprite();
 
 	Sprite(char *name, Image *source, int numstates);
-	Sprite(const Sprite& other)
-	{
-		*this = other;
-		this->ID = 0;
-	}
-
+	//Sprite(const Sprite& other)
+	//{
+	//	*this = other;
+	//	this->ID = 0;
+	//}
+	//
 	Sprite(char *name, Image *source)
 	{//	 std::Bind would be useful here
 		*this = Sprite(name, source, 1);
@@ -141,10 +142,30 @@ public:
 	void  Render(Vec2 pos);
 	void  Render(Vec2 pos, float angle);
 
-//	AABB* MakeCollisionBox();
+ 	AABB* MakeCollisionBox();
 	//------------------------------------------------------------------------------------------------------------------
 	static AssetManager<Sprite> Manager;
 	//------------------------------------------------------------------------------------------------------------------
+};
+
+struct Tile
+{
+public:
+	Tile(int x, int y, int w, int h, bool collidable);
+	class SDL_Rect PictureArea;
+	bool Collidable;
+};
+
+
+
+struct BatchTile
+{
+	BatchTile(int index, int x, int y)
+		 :TileID(index), Position(x, y)
+	{}
+	int TileID;
+	Vec2 Position;
+
 };
 
 
@@ -152,9 +173,14 @@ class TileRender
 {
 public:
 	TileRender() {}
-	TileRender(Image sheet);
+	TileRender(Image sheet, int tx, int ty);
 
-private:
+	void Render();
+	void RenderTile(int TileID, int x, int y);
+	void Spawn(int index, int x, int y);
+
 	Image TileSheet;
-	std::vector<SDL_Rect> TileList;
+
+	std::vector<BatchTile> BatchedList;
+	std::vector<Tile> TileList;
 };

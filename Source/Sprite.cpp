@@ -28,7 +28,6 @@ std::vector<SDL_Rect> &State::ADD_FRAME(SDL_Rect frame)
 } // Adds a frame to the State
 
 
-
 const char *Name;
 int ID;
 Vec2 Size;
@@ -38,11 +37,12 @@ Surface *ImageSurface;
 Image::~Image()
 {
 }
-
 Image::Image(char * name, const char * file)
-	 : Name(name)
 {
+	Name = name;
         ImageSurface = IMG_Load(file);
+		Source = file;
+
         if (!ImageSurface)
         {
         	Print("ImageClass: Image Can not be loaded"); Print(file);
@@ -59,17 +59,14 @@ Image::Image(char * name, const char * file)
         Size.x = ImageSurface->w;
         Size.y = ImageSurface->h;
         
-       // SDL_FreeSurface(ImageSurface);
-
 		ID = Manager.Add(this);
 }
 
 Image::Image(char *name)
 	 : Name(name)
 {
-
+	Print("Getting into trouble here, fix the default Image Constructor with *name");
 	ImageSurface = NULL;
-
 	ImageTexture = NULL;
 
 	Size.x = 0; 
@@ -77,10 +74,27 @@ Image::Image(char *name)
 
 	ID = Manager.Add(this);
 }
-
-Image::Image(SDL_Surface * surf, SDL_Rect area)
+Image::Image(char *name, SDL_Surface * surf, SDL_Rect area)
 { // Use this for making tiles
-	Print("Creating an Image from other images not completed");
+	ImageSurface = SDL_CreateRGBSurface(NULL,
+		area.w, area.h,
+		surf->format->BitsPerPixel,
+		surf->format->Rmask,
+		surf->format->Gmask,
+		surf->format->Bmask,
+		surf->format->Amask);
+
+	SDL_Rect dest = { 0, 0, area.w, area.h };
+	SDL_BlitSurface(surf, &area, ImageSurface, &dest);
+
+	ImageTexture = SDL_CreateTextureFromSurface(SCREEN->Renderer, ImageSurface);
+	if (!ImageTexture)
+	{
+		Print("ImageClass: Texture Can not be made from existing Surface.");
+		return;
+	}
+	
+	ID = Manager.Add(this);
 }
 
 void Image::Render(Vec2 position)
@@ -96,52 +110,42 @@ void Image::Render(Vec2 position, Vec2 size)
 	SDL_RenderCopy(SCREEN->Renderer, ImageTexture, &srcrect, &dstrect);
 }
 
-Image *Image::MakeGreyScale(Image *img)
+void Image::MakeGreyScale()
 {
-	Image *ret = new Image();
+	//Image ret;// = new Image();
 
 	SDL_Texture * texture = SDL_CreateTexture(SCREEN->Renderer,
 		                                      SDL_PIXELFORMAT_ARGB8888,
 		                                      SDL_TEXTUREACCESS_STATIC,
-		                                      img->Size.x, 
-		                                      img->Size.y);
+		                                      Size.x, 
+		                                      Size.y);
 
-
-	SDL_Surface *originalImage = img->ImageSurface;
-	img->ImageSurface = SDL_ConvertSurfaceFormat(img->ImageSurface, SDL_PIXELFORMAT_ARGB8888, 0);
+	SDL_Surface *originalImage = ImageSurface;
+	ImageSurface = SDL_ConvertSurfaceFormat( ImageSurface, SDL_PIXELFORMAT_ARGB8888, 0);
 	SDL_FreeSurface(originalImage);
 
-	SDL_UpdateTexture(texture, NULL, img->ImageSurface->pixels, img->Size.x * sizeof(Uint32));
-	Uint32 *Pixels = (Uint32 *)img->ImageSurface->pixels;
+	SDL_UpdateTexture(texture, NULL,  ImageSurface->pixels,  Size.x * sizeof(Uint32));
+	Uint32 *Pixels = (Uint32 *) ImageSurface->pixels;
 
-		                                      
-	for_loop (y, img->Size.y)
+	for_loop (y,  Size.y)
 	{
-		for_loop (x, img->Size.x)
+		for_loop (x, Size.x)
 		{
-			Uint32 Pixel = Pixels[x + (int)img->Size.x * y];
+			Uint32 Pixel = Pixels[x + (int) Size.x * y];
 
 			Uint8 Red   = Pixel >> 16 & 0xFF;
 			Uint8 Green = Pixel >> 8 & 0xFF;
 			Uint8 Blue  = Pixel & 0xFF;
-			Uint8 Grey = (Red + Green + Blue) / 3;
+			Uint8 Grey =  0.212671f * Red + 0.715160f * Green + 0.072169f * Blue; ;// (Red + Green + Blue) / 3;
 
-			Pixel = (0xFF << 24) | (Grey << 16) | (Grey << 8) | Grey;
-			Pixels[y * (int)img->Size.x + x] = Pixel;
+			Pixel =  (0xFF << 24) | (Grey << 16) | (Grey << 8) | Grey;//Grey;//RGB( Grey, Grey, 255);// (0xFF << 24) | (Grey << 16) | (Grey << 8) | Grey;
+			Pixels[y * (int) Size.x + x] = Pixel;
 
 		}
 	}
-	SDL_UpdateTexture(texture, NULL, Pixels, img->Size.x * sizeof(Uint32));
 
-	*ret = *img;
-	ret->Size.x = img->Size.x;
-	ret->Size.y = img->Size.y;
-	 ret->ImageTexture = texture;
-	*ret->ImageSurface = *img->ImageSurface;
-
-	ret->Render(Vec2(10,10));
-//	Print("Done making image");
-	return ret;
+	SDL_UpdateTexture(texture, NULL, Pixels, Size.x * sizeof(Uint32));
+	ImageTexture = texture;
 }
 
 
@@ -238,4 +242,88 @@ void Sprite::Render(Vec2 pos, float angle)
 	SDL_Point Center = { Size.x / 2,Size.y / 2 };
 	SDL_RenderCopyEx(SCREEN->Renderer, SpriteSheet->GetTexture(), &srcrect, &dstrect, Angle, &Center, SDL_RendererFlip(0));
 
+}
+
+
+
+
+TileRender::TileRender(Image sheet, int tx, int ty)
+{
+	TileSheet = sheet;
+	for(int y = 0; y < sheet.Size.y; y += ty)
+	{
+		for(int x = 0; x < sheet.Size.x; x+= tx)
+		{
+			SDL_Rect src = { };
+			Tile *newTile = new Tile(x, y, tx, ty, NULL);
+			TileList.push_back(*newTile);
+		}
+	}
+}
+
+void TileRender::Render()
+{
+	for (auto &B : BatchedList)
+	{
+		Tile T = TileList[B.TileID];
+
+		SDL_Rect srcrect = { T.PictureArea.x,
+			                 T.PictureArea.y,
+			                 T.PictureArea.w, 
+			                 T.PictureArea.h };
+
+		SDL_Rect dstrect = { B.Position.x,  
+			                 B.Position.y ,
+			                 T.PictureArea.w,
+			                 T.PictureArea.h };
+
+		SDL_RenderCopy(SCREEN->Renderer, TileSheet.GetTexture(), &srcrect, &dstrect);
+	}
+}
+
+
+
+Tile::Tile(int x, int y, int w, int h, bool collidable)
+{
+	PictureArea = {x, y, w, h};
+	Collidable = collidable;
+}
+
+void TileRender::Spawn(int index, int x, int y)
+{
+	BatchTile *newtile = new BatchTile(index, x, y);
+	BatchedList.push_back(*newtile);
+}
+
+
+void  TileRender::RenderTile(int tileID, int x, int y)
+{
+	Tile T = TileList[tileID];
+	int H = tileID;
+	SDL_Rect srcrect = { T.PictureArea.x,
+		                 T.PictureArea.y,
+		                 T.PictureArea.w,
+		                 T.PictureArea.h };
+		                 
+	SDL_Rect dstrect = { x,
+		                 y,
+		                 T.PictureArea.w,
+		                 T.PictureArea.h };
+
+	SDL_RenderCopy(SCREEN->Renderer, TileSheet.GetTexture(), &srcrect, &dstrect);
+}
+
+
+
+
+
+
+
+
+
+AABB* Sprite::MakeCollisionBox()
+{
+	//IDK WTF TO DO WITH THIS AT THE MOMENT
+	//SDL_Rect dstrect = {Position.x - (Size.x *.5), Position.y - (Size.y * .5), Size.x, Size.y}
+	return new AABB(Position, ((Size * .8f) *.5f));
 }

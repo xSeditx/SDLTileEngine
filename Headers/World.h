@@ -1,6 +1,7 @@
 #pragma once
 #include"Window.h"
 #include"Sprite.h""
+#include"Entity.h"
 
 class Viewport
 {
@@ -16,14 +17,35 @@ public:
 	void ZoomIn   (float amount);
 	void ZoomOut  (float amount);
 
-private:
+//private:
 	Vec2  Position,
 	      Size;
 	float Zoom;
 };
 
 
+class Player
+{
+public:
+	Player() {}
+	Player(Vec2 pos, Vec2 size)
+		: Position(pos), Size(size), Health(1000) {}
 
+	void MoveLeft(float amount);
+	void MoveRight(float amount);
+	void MoveUp(float amount);
+	void MoveDown(float amount);
+
+	int Health;
+
+	void Update();
+	void Render();
+
+	Vec2  Position,
+		Size;
+
+	AABB *CollisionBox;
+};
 
 
 class World
@@ -39,7 +61,13 @@ public:
 	   void Update();
 	   void Render();
 
-private:
+	   TileRender Tiles;
+
+	   Player   Player1;
+
+
+	   std::vector<Entity *> EntityList;
+//private:
 	   int SizeX, 
 		   SizeY,
 		   TileSizeX, 
@@ -47,5 +75,4 @@ private:
 
 	   int *Data;
 	   Viewport Camera;
-	   TileRender Tiles;
 };
