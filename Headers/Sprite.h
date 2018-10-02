@@ -19,7 +19,7 @@ public:
 	Image(char *name);
 	Image(char *name, SDL_Surface *surf, SDL_Rect area);
 	
-    char *Name;
+    const char *Name;
     int   ID;
     Vec2  Size;
 	const char *Source;
@@ -101,12 +101,12 @@ public:
 	~Sprite();
 
 	Sprite(char *name, Image *source, int numstates);
-	//Sprite(const Sprite& other)
-	//{
-	//	*this = other;
-	//	this->ID = 0;
-	//}
-	//
+	Sprite(const Sprite& other)
+	{
+		*this = other;
+		this->ID = 0;
+	}
+	
 	Sprite(char *name, Image *source)
 	{//	 std::Bind would be useful here
 		*this = Sprite(name, source, 1);
@@ -128,6 +128,8 @@ public:
 	std::vector<State> States;
 
 	uint CurrentState;
+
+	uint Timer;
 
 	int  AnimationSpeed;
 
@@ -158,29 +160,18 @@ public:
 
 
 
-struct BatchTile
-{
-	BatchTile(int index, int x, int y)
-		 :TileID(index), Position(x, y)
-	{}
-	int TileID;
-	Vec2 Position;
-
-};
-
-
 class TileRender
 {
 public:
 	TileRender() {}
 	TileRender(Image sheet, int tx, int ty);
 
-	void Render();
-	void RenderTile(int TileID, int x, int y);
+
+	void RenderTile(int TileID, float x, float y);
 	void Spawn(int index, int x, int y);
 
 	Image TileSheet;
 
-	std::vector<BatchTile> BatchedList;
+
 	std::vector<Tile> TileList;
 };

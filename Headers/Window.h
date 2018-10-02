@@ -80,7 +80,7 @@ typedef SDL_Surface Surface;
 
 typedef unsigned int uint;
   #define _ERROR_   0x0013 // Expand on this entire system in the future so the proper error string and results are associated with the problem.
-  #define ErrorCatch(x, str)    if(x != 0){SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", str, SCREEN->SDL_HWND); exit(_ERROR_);}
+  //#define ErrorCatch(x, str)    if(x != 0){SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", str, SCREEN->SDL_HWND); exit(_ERROR_);}
 
 //#include "C:\Users\Curt\Documents\Visual Studio 2012\Libraries\SDL2\include\SDL_mixer.h"
 /* Constants rounded for 21 decimals. */
@@ -117,8 +117,8 @@ typedef unsigned int uint;
 #define     LOOP(x)                   for(int count = 0; count < (x); count++)
 #define     for_loop(x,c)             for(int x = 0; x < c; x++)
 
-#define     SCREENWIDTH      640 //  1280 //
-#define     SCREENHEIGHT     880// 480  //  960 //
+#define     SCREENWIDTH     1000// 640 //  1280 //
+#define     SCREENHEIGHT    800// 880// 480  //  960 //
 
 #define     _LOOP_GAME         SCREEN->LOOP_GAME()        // This is being done for future compatibility with various Graphics Libraries
 #define     _CLS                     SCREEN->CLS()        //
@@ -131,13 +131,6 @@ typedef unsigned int uint;
 #define     MAX(a,b)          ((a>b) ? a : b)
 
 #define     PICK_ONE(a,b)          ((RANDOM(1) > .5) ? a : b)
-
-#define     Speed_Test(x)     \
-    float Timer = SDL_GetTicks();  \
-    x  \
-       \
-    std::cout << "Speed:" << SDL_GetTicks() - Timer << std::endl;
-
 
 
 extern float Cos[360],

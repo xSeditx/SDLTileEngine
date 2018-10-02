@@ -34,12 +34,13 @@ Vec2 Size;
 Texture *ImageTexture;
 Surface *ImageSurface;
 
+
 Image::~Image()
 {
 }
 Image::Image(char * name, const char * file)
+	 :Name(name)
 {
-	Name = name;
         ImageSurface = IMG_Load(file);
 		Source = file;
 
@@ -61,7 +62,6 @@ Image::Image(char * name, const char * file)
         
 		ID = Manager.Add(this);
 }
-
 Image::Image(char *name)
 	 : Name(name)
 {
@@ -76,6 +76,8 @@ Image::Image(char *name)
 }
 Image::Image(char *name, SDL_Surface * surf, SDL_Rect area)
 { // Use this for making tiles
+	Print("Getting into trouble here, Image from surface");
+
 	ImageSurface = SDL_CreateRGBSurface(NULL,
 		area.w, area.h,
 		surf->format->BitsPerPixel,
@@ -199,10 +201,8 @@ void Sprite::Render()
 void Sprite::Render(float angle)
 {
 	Uint32 ticks = SDL_GetTicks();
-
 	if (Animated == true)
 	{
-
 		States[CurrentState].CURRENT_FRAME = (ticks / AnimationSpeed) % States[CurrentState].TOTAL_FRAMES;
 	}
 
@@ -240,47 +240,9 @@ void Sprite::Render(Vec2 pos, float angle)
 	SDL_Rect dstrect = { pos.x - (Size.x *.5), pos.y - (Size.y * .5), Size.x, Size.y };
 
 	SDL_Point Center = { Size.x / 2,Size.y / 2 };
-	SDL_RenderCopyEx(SCREEN->Renderer, SpriteSheet->GetTexture(), &srcrect, &dstrect, Angle, &Center, SDL_RendererFlip(0));
+	SDL_RenderCopyEx(SCREEN->Renderer, SpriteSheet->GetTexture(), &srcrect, &dstrect, angle, &Center, SDL_RendererFlip(2));
 
 }
-
-
-
-
-TileRender::TileRender(Image sheet, int tx, int ty)
-{
-	TileSheet = sheet;
-	for(int y = 0; y < sheet.Size.y; y += ty)
-	{
-		for(int x = 0; x < sheet.Size.x; x+= tx)
-		{
-			SDL_Rect src = { };
-			Tile *newTile = new Tile(x, y, tx, ty, NULL);
-			TileList.push_back(*newTile);
-		}
-	}
-}
-
-void TileRender::Render()
-{
-	for (auto &B : BatchedList)
-	{
-		Tile T = TileList[B.TileID];
-
-		SDL_Rect srcrect = { T.PictureArea.x,
-			                 T.PictureArea.y,
-			                 T.PictureArea.w, 
-			                 T.PictureArea.h };
-
-		SDL_Rect dstrect = { B.Position.x,  
-			                 B.Position.y ,
-			                 T.PictureArea.w,
-			                 T.PictureArea.h };
-
-		SDL_RenderCopy(SCREEN->Renderer, TileSheet.GetTexture(), &srcrect, &dstrect);
-	}
-}
-
 
 
 Tile::Tile(int x, int y, int w, int h, bool collidable)
@@ -289,17 +251,24 @@ Tile::Tile(int x, int y, int w, int h, bool collidable)
 	Collidable = collidable;
 }
 
-void TileRender::Spawn(int index, int x, int y)
+TileRender::TileRender(Image sheet, int tx, int ty)
 {
-	BatchTile *newtile = new BatchTile(index, x, y);
-	BatchedList.push_back(*newtile);
+	TileSheet = sheet;
+	for (int y = 0; y < sheet.Size.y; y += ty)
+	{
+		for (int x = 0; x < sheet.Size.x; x += tx)
+		{
+			SDL_Rect src = {};
+			Tile *newTile = new Tile(x, y, tx, ty, NULL);
+			TileList.push_back(*newTile);
+		}
+	}
 }
 
-
-void  TileRender::RenderTile(int tileID, int x, int y)
+void TileRender::RenderTile(int tileID, float x, float y)
 {
 	Tile T = TileList[tileID];
-	int H = tileID;
+
 	SDL_Rect srcrect = { T.PictureArea.x,
 		                 T.PictureArea.y,
 		                 T.PictureArea.w,
@@ -307,17 +276,11 @@ void  TileRender::RenderTile(int tileID, int x, int y)
 		                 
 	SDL_Rect dstrect = { x,
 		                 y,
-		                 T.PictureArea.w,
-		                 T.PictureArea.h };
+		                 T.PictureArea.w / 2,
+		                 T.PictureArea.h / 2};
 
 	SDL_RenderCopy(SCREEN->Renderer, TileSheet.GetTexture(), &srcrect, &dstrect);
 }
-
-
-
-
-
-
 
 
 

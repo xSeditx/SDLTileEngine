@@ -291,6 +291,7 @@ void AABB::Sweep()
  //   std::vector<Collider*> results;
 //Currently testing Every StaticSprite against every sprite... Should I? This is a performance issue to be managed later I guess.
  // I Tested 100x100 before so I should have enough perfomance to not worry about it
+	// Simple as implementing QuadTree.CPP if performance becomes and issue.
     for(Collider *Other: CollisionList)
     {
         if(Other != this)

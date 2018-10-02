@@ -459,105 +459,24 @@ void Powerup::Update()
 {
 	if (Alive)
 	{
-		Age++; // Increase the age so we can kill it if its getting to old.
-		if (Age >= 500)
-		{
-			Kill();
-			return;
-		}
-
-		// CollisionBox->Body.Velocity = Speed; //Set the Velocity Tinker with this to get a good speed out of the projectiles
-		CollisionBox->Update();
-
-		if (CollisionBox->IsCollision(Entity::PlayerOne->CollisionBox)) // Means it collided with the player
-		{
-			SpecialEffect();
-			Kill();
-			Print("Picked up Powerup");
-		}
-		Position = CollisionBox->Position;// Set the Position of the Bullet to the CollisionBox position
-		Picture.Position = Position;     // Set the Sprite Image to the Position of the Projectile
 	}
 }
 void Projectile::Update()
 {
 	if (Alive)
 	{
-		Age++; // Increase the age so we can kill it if its getting to old.
-		if (Age > 200)
-		{
-			Kill();
-			return;
-		}
-
-		CollisionBox->Body.Velocity = Speed; // Apply force so it moves. Tinker with this to get a good speed out of the projectiles
-		CollisionBox->Update();
-
-		for (auto &E : Enemy::EnemyList) // Check to see if the Players Bullet hit an Enemy
-		{
-			if (E.Alive) // But only if the Bullet is Alive
-			{
-				if (E.CollisionBox->IsCollision(CollisionBox))
-				{
-					E.Health -= BulletPower;
-					Kill();
-
-					Print("Bullet Hit Enemy");
-				}
-			}
-		}
-		Position = CollisionBox->Position;// Set the Position of the Bullet to the CollisionBox position
-		Picture.Position = Position;     // Set the Sprite Image to the Position of the Projectile
 	}
 }
 void StaticObject::Update()
 {
-	if (Alive == true)
+	if (Alive)
 	{
-		Age++;
-		CollisionBox->Body.Force = Vec2(0, 0);//Speed;
-
-		CollisionBox->Update();
-		Position = CollisionBox->Position;
-		Picture.Position = Position;
-
-		if (Position.y > SCREENHEIGHT + SCREEN_BUFFER_AREA || Position.y < -SCREEN_BUFFER_AREA)
-		{
-			Kill();
-		}
-
-		if (SDL_GetTicks() - Timer >= 1000)
-		{
-			Kill();
-		}
 	}
-
 }
 void EnemyProjectile::Update()
 {
 	if (Alive)
 	{
-		Age++; // Increase the age so we can kill it if its getting to old.
-		if (Age >= 200)
-		{
-			Kill();
-			return;
-		}
-
-		CollisionBox->Body.Velocity = Speed; //Set the Velocity Tinker with this to get a good speed out of the projectiles
-		CollisionBox->Update();
-
-		//if (CollisionBox->IsCollision(Entity::PlayerOne->CollisionBox)) // Means it collided with the player
-		//{
-		//	Entity::PlayerOne->Health -= BulletPower;
-		//	//Entity::PlayerOne->Invincible = true;
-		//	Entity::PlayerOne->InvincibilityTimer = SDL_GetTicks();
-		//	Death->Play();
-		//	Kill();
-		//	Print("Player Hit by FireBall");
-		//}
-		Position = CollisionBox->Position;// Set the Position of the Bullet to the CollisionBox position
-		Picture.Position = Position;     // Set the Sprite Image to the Position of the Projectile
 	}
 }
 

@@ -5,11 +5,12 @@
 template<typename T>
 struct AssetManager
 {
-      T *GetAsset(char *name)
+      T *GetAsset(const char *name)
         {
             for_loop(Index, Count)
             {
-                if(List[Index]->Name == name)
+				if(strncmp(List[Index]->Name, name, sizeof(name)) == 0)
+                //if(List[Index]->Name == name)
                 {
                     return List[Index];
                 }

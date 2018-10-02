@@ -25,10 +25,11 @@ public:
             Position = pos;   
         }
        
-        //Mass(float weight,float x, float y)
-        //{
-        //    Mass(weight, Vec2(x,y));
-        //}
+        Mass(float weight,float x, float y)
+        {
+           *this = Mass(weight, Vec2(x,y));
+        }
+
        ~Mass(){}
         
         Vec2   Velocity,
@@ -41,10 +42,10 @@ public:
         
         void Apply_Gravity  ();
         void Apply_Physics  ();
-        void Set_Force      (float x, float y);
-        void Set_Position   (float x, float y);
+		void Set_Force(float x, float y)    { Force = Vec2(x, y); }
+		void Set_Position(float x, float y) { Position = Vec2(x, y); };
         
-        Vec2 Get_Position();
+		Vec2 Get_Position() { return Vec2(Position.x, Position.y); }
         
         inline float Get_X(){return Position.x;}
         inline float Get_Y(){return Position.y;}
